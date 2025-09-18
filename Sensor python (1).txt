@@ -1,0 +1,86 @@
+import tkinter as tk
+import serial
+
+# Serial configuration
+ser = serial.Serial('COM3', 9600)  # Replace 'COM1' with the actual port and '9600' with the correct baud rate
+
+def read_serial_data():
+        data = ser.readline().decode().strip()
+        if data:
+            sensor_id, value = data.split(':')
+            if sensor_id == 'Sensor1':
+                sensor1_text.delete('1.0', tk.END)
+                sensor1_text.insert(tk.END, value)
+            elif sensor_id == 'Sensor2':
+                sensor2_text.delete('1.0', tk.END)
+                sensor2_text.insert(tk.END, value)
+            elif sensor_id == 'Sensor3':
+                sensor3_text.delete('1.0', tk.END)
+                sensor3_text.insert(tk.END, value)
+            # Add more elif conditions for additional sensors
+
+            if sensor_id == 'Sensor1' and float(value) > 35:
+                indicator1.config(bg='red')  # Turn on the virtual indicator
+            if sensor_id == 'Sensor1' and float(value) < 35:
+                indicator1.config(bg='green')  # Turn on the virtual indicator
+            if sensor_id == 'Sensor2' and float(value) > 35:
+                indicator2.config(bg='red')  # Turn on the virtual indicator
+            if sensor_id == 'Sensor2' and float(value) < 35:
+                indicator2.config(bg='green')  # Turn on the virtual indicator
+            if sensor_id == 'Sensor3' and float(value) > 35:
+                indicator3.config(bg='red')  # Turn on the virtual indicator
+            if sensor_id == 'Sensor3' and float(value) < 35:
+                indicator3.config(bg='green')  # Turn on the virtual indicator
+
+
+
+        sensor1_text.after(100, read_serial_data)
+def clear_display():
+    sensor1_text.delete('1.0', tk.END)
+    sensor2_text.delete('1.0', tk.END)
+    sensor3_text.delete('1.0', tk.END)
+    # Add more text boxes to clear if needed
+
+# Create the Tkinter window
+window = tk.Tk()
+window.title("Sensor Data Reader")
+
+
+# Create text boxes to display sensor data
+sensor1_label = tk.Label(window, text="Sensor 1:")
+sensor1_label.pack()
+sensor1_text = tk.Text(window, height=1, width=10)
+sensor1_text.pack()
+
+sensor2_label = tk.Label(window, text="Sensor 2:")
+sensor2_label.pack()
+sensor2_text = tk.Text(window, height=1, width=10)
+sensor2_text.pack()
+
+sensor3_label = tk.Label(window, text="Sensor 3:")
+sensor3_label.pack()
+sensor3_text = tk.Text(window, height=1, width=10)
+sensor3_text.pack()
+
+clear_button = tk.Button(window, text="Clear", command=clear_display)
+clear_button.pack()
+indicator1 = tk.Label(window, width=5, height=1, bg="white", highlightthickness=5,
+                                    highlightbackground="black")
+indicator1.pack(pady=10)
+
+indicator2 = tk.Label(window, width=5, height=1, bg="white", highlightthickness=5,
+                                    highlightbackground="black")
+indicator2.pack(pady=10)
+
+indicator3 = tk.Label(window, width=5, height=1, bg="white", highlightthickness=5,
+                                    highlightbackground="black")
+indicator3.pack(pady=10)
+
+
+
+# Start reading the serial data
+read_serial_data()
+
+# Start the Tkinter event loop
+window.mainloop()
+

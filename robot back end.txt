@@ -1,0 +1,216 @@
+#define BLYNK_TEMPLATE_ID "TMPL3En-D78_3"
+#define BLYNK_TEMPLATE_NAME "BOMB DET ROBO"
+#define BLYNK_AUTH_TOKEN "rmac9O2ku0GW3w7K03k7e7hnxvMYbUhc"
+#define BLYNK_PRINT Serial
+#include <Servo.h> 
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <SimpleTimer.h> 
+Servo Servo1;
+#define BZ 16
+#define M0 5
+#define M1 4
+#define M2 0
+#define M3 2
+#define SG A0
+#define S0 14
+#define S1 12
+#define S2 13
+int a,b,c,d,e,i,x,T;
+
+
+SimpleTimer timer;
+char auth[] = BLYNK_AUTH_TOKEN;                                                     
+char ssid[] = "NET";    
+char pass[] = "12345678";
+Servo myservo;
+void setup()
+{
+  Serial.begin(9600);
+  Blynk.begin(auth, ssid, pass, "blynk.cloud", 80);
+  timer.setInterval(1000, sendUptime);
+  myservo.attach(15);
+  Blynk.logEvent("event0","Device Connected!!");
+  pinMode(BZ,OUTPUT);
+  pinMode(M0,OUTPUT);
+  pinMode(M1,OUTPUT);
+  pinMode(M2,OUTPUT);
+  pinMode(M3,OUTPUT);
+  digitalWrite(M0,LOW);
+  digitalWrite(M1,LOW);
+  digitalWrite(M2,LOW);
+  digitalWrite(M3,LOW);
+  pinMode(S0,OUTPUT);
+  pinMode(S1,OUTPUT);
+  pinMode(S2,OUTPUT);
+  digitalWrite(BZ,HIGH);
+  delay(1000);
+  digitalWrite(BZ,LOW);
+}
+
+void sendUptime()
+{
+digitalWrite(S0,LOW);
+digitalWrite(S1,LOW);
+digitalWrite(S2,LOW);
+a=analogRead(SG);
+digitalWrite(S0,HIGH);
+digitalWrite(S1,LOW);
+digitalWrite(S2,LOW);
+b=analogRead(SG);
+digitalWrite(S0,LOW);
+digitalWrite(S1,HIGH);
+digitalWrite(S2,LOW);
+c=analogRead(SG);
+digitalWrite(S0,HIGH);
+digitalWrite(S1,HIGH);
+digitalWrite(S2,LOW);
+d=analogRead(SG);
+if(a>500)
+{
+  a=1;
+   Blynk.logEvent("event0","Warning!!Metal Presence Detected!!");
+   Blynk.virtualWrite(V7,a);
+   for(i=0;i<5;i++)
+   {
+    digitalWrite(BZ,HIGH);
+    delay(300);
+    digitalWrite(BZ,LOW);
+    delay(300);
+   }
+}
+else
+{
+  a=0;
+  Blynk.virtualWrite(V7,a);
+}
+b=b/100;
+if(b>=9)
+{
+  Blynk.logEvent("event0","Warning!!Explossive Meterial Detected!!");
+   for(i=0;i<5;i++)
+   {
+    digitalWrite(BZ,HIGH);
+    delay(300);
+    digitalWrite(BZ,LOW);
+    delay(300);
+   }
+}
+  c=c/10;
+  c=c-50;
+  d=d/10;
+if(d>20)
+{
+   Blynk.logEvent("event0","Warning!!Fire Detected!!"); 
+   for(i=0;i<5;i++)
+   {
+    digitalWrite(BZ,HIGH);
+    delay(300);
+    digitalWrite(BZ,LOW);
+    delay(300);
+   }
+}
+Serial.print("Metal Det:");
+Serial.println(a);
+Serial.print("Explossive Gas Level:");
+Serial.println(b);
+Serial.print("Temperature:");
+Serial.println(c);
+Serial.print("Fire Proximity:");
+Serial.println(d);
+Serial.println("--------------------------END REPORT------------------------");
+Blynk.virtualWrite(V4,b);
+Blynk.virtualWrite(V5,d);
+Blynk.virtualWrite(V6,c);
+Blynk.virtualWrite(V7,a);
+}
+
+BLYNK_WRITE(V0)
+{
+i=param.asInt();
+if (i==1)
+{
+  digitalWrite(M0,HIGH);
+  digitalWrite(M1,LOW);
+  digitalWrite(M2,LOW);
+  digitalWrite(M3,HIGH);
+}
+if (i==0)
+{
+  digitalWrite(M0,LOW);
+  digitalWrite(M1,LOW);
+  digitalWrite(M2,LOW);
+  digitalWrite(M3,LOW);
+}
+}
+
+BLYNK_WRITE(V1)
+{
+i=param.asInt();
+if (i==1)
+{
+  digitalWrite(M0,LOW);
+  digitalWrite(M1,HIGH);
+  digitalWrite(M2,HIGH);
+  digitalWrite(M3,LOW);
+}
+if (i==0)
+{
+  digitalWrite(M0,LOW);
+  digitalWrite(M1,LOW);
+  digitalWrite(M2,LOW);
+  digitalWrite(M3,LOW);
+}
+}
+
+BLYNK_WRITE(V2)
+{
+i=param.asInt();
+if (i==1)
+{
+  digitalWrite(M0,HIGH);
+  digitalWrite(M1,LOW);
+  digitalWrite(M2,HIGH);
+  digitalWrite(M3,LOW);
+}
+if (i==0)
+{
+  digitalWrite(M0,LOW);
+  digitalWrite(M1,LOW);
+  digitalWrite(M2,LOW);
+  digitalWrite(M3,LOW);
+}
+}
+
+BLYNK_WRITE(V3)
+{
+i=param.asInt();
+if (i==1)
+{
+  digitalWrite(M0,LOW);
+  digitalWrite(M1,HIGH);
+  digitalWrite(M2,LOW);
+  digitalWrite(M3,HIGH);
+}
+if (i==0)
+{
+  digitalWrite(M0,LOW);
+  digitalWrite(M1,LOW);
+  digitalWrite(M2,LOW);
+  digitalWrite(M3,LOW);
+}
+}
+
+BLYNK_WRITE(V8)
+{
+x=param.asInt();
+myservo.write(x);
+}
+
+
+
+void loop()
+{
+  Blynk.run();
+  timer.run();
+}
